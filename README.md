@@ -22,4 +22,9 @@ The repository includes:
    
 4. 'dynamics.py'
 
-   __
+   _Estimating the Maximum Lyapunov Exponent for cluster synchronization patterns for a given parameter regime. Requires an input of dynamical 
+   terms (node and coupling dynamics), as well as their partial derivatives._
+   
+5. 'mle.p'
+
+    MLE estimates from the example in the manuscript.
