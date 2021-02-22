@@ -37,3 +37,11 @@ edges.
 5. **'mle.p'**
 
     MLE estimates from the example in the manuscript.
+    
+**Required packages:**
+
+- scipy
+- copy
+- itertools
+- sys
+- numpy_indexed
