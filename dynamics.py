@@ -52,10 +52,11 @@ class Dynamics():
         '''
         next_step = self.beta * self.dynamics_terms['1'](IC)
         for order in self.cs.orders:
-            for i, edge in enumerate(self.cs.unique_clusters_dyn[order]):
-                next_step[edge[0]] +=  self.cs.I_eff[order][edge[0], self.cs.unique_clusters_dyn_perm[order][i]]\
-                                       * self.sigma[order]\
-                                       * self.dynamics_terms[order](IC[edge])
+            for edge_type in self.cs.edge_types[order]:
+                for i, edge in enumerate(self.cs.unique_clusters_dyn[order][edge_type]):
+                    next_step[edge[0]]+=  self.cs.I_eff[order][edge_type][edge[0], self.cs.unique_clusters_dyn_perm[order][edge_type][i]]\
+                                          * self.sigma[order][edge_type]\
+                                          * self.dynamics_terms[order][edge_type](IC[edge])
         return next_step
     
     def perturbation_step(self, IC_d, IC_p):
@@ -79,12 +80,14 @@ class Dynamics():
                 ns+= self.beta * E_BD\
                      * self.jacobian_terms['1'](IC_d[j])
             for order in self.cs.orders:
-                for key in self.cs.Jacobian_input[order]:
-                    L_BD = self.cs.Jacobian_input[order][key][i]
-                    ns+= self.sigma[order] * L_BD * self.jacobian_terms[order](IC_d[list(key)])  
-            next_step[i_low:i_high] = ns @ IC_p[i_low:i_high]
+                for edge_type in self.cs.edge_types[order]:
+                    for key in self.cs.Jacobian_input[order][edge_type]:
+                        L_BD = self.cs.Jacobian_input[order][edge_type][key][i]
+                        ns+= self.sigma[order][edge_type] * L_BD * self.jacobian_terms[order][edge_type](IC_d[list(key)])  
+                next_step[i_low:i_high] = ns @ IC_p[i_low:i_high]
         le = np.log(np.linalg.norm(next_step))
         next_step = next_step/np.linalg.norm(next_step)
+        
         return next_step, le
     
     def extended_dynamics_evolution(self, T):
@@ -110,21 +113,3 @@ class Dynamics():
             dynamics_perturbations[i+1, :], norms[i] = self.perturbation_step(dynamics_quotient[i, :], 
                                                                               dynamics_perturbations[i, :])
         return dynamics_quotient, dynamics_perturbations, norms
-    
-    def full_dynamics(self, IC):
-        '''
-        Evolve the dynamics to make sure the code is working as expected
-        
-        Parameters
-        ----------
-        IC: numpy array
-            the full state at the previous time step
-        '''
-        next_step = self.beta * self.dynamics_terms['1'](IC)
-        for order in self.cs.orders:
-            for n in range(self.cs.size):
-                for i, edge in enumerate(self.cs.edge):
-                     next_step[e[0]]+= self.cs.I[order][n, i] * self.sigma[order]\
-                                       * self.dynamics_terms[order](IC[e])
-        return next_step
-        
