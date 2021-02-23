@@ -40,7 +40,10 @@ edges.
     
 **Required packages:**
 
+- numpy
 - scipy
+- matplotlib
+- pickle
 - copy
 - itertools
 - sys
